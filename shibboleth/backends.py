@@ -44,3 +44,7 @@ class ShibbolethRemoteUserBackend(RemoteUserBackend):
             except User.DoesNotExist:
                 pass
         return user
+
+    def configure_user(self, user):
+        user.set_unusable_password()
+        user.save()
