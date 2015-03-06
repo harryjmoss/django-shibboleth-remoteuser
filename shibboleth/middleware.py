@@ -60,8 +60,6 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
             # by logging the user in.
             request.user = user
             auth.login(request, user)
-            user.set_unusable_password()
-            user.save()
             # call make profile.
             self.make_profile(user, shib_meta)
             #setup session.

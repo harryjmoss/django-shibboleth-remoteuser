@@ -63,3 +63,7 @@ class ShibbolethRemoteUserBackend(RemoteUserBackend):
                 pass
 
         return user
+
+    def configure_user(self, user):
+        user.set_unusable_password()
+        user.save()
