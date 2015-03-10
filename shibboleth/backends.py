@@ -58,7 +58,7 @@ class ShibbolethRemoteUserBackend(RemoteUserBackend):
                 user = self.configure_user(user)
         else:
             try:
-                user = UserModel._default_manager.get(**shib_user_params)
+                user = UserModel._default_manager.get_by_natural_key(username)
             except UserModel.DoesNotExist:
                 pass
 
