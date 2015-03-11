@@ -34,10 +34,10 @@ class ShibbolethRemoteUserBackend(RemoteUserBackend):
         Returns None if ``create_unknown_user`` is ``False`` and a ``User``
         object with the given username is not found in the database.
         """
+        if not remote_user:
+            return
         user = None
         username = self.clean_username(remote_user)
-        if not username:
-            return
 
         UserModel = get_user_model()
 
