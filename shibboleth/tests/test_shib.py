@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+import unittest
 from distutils.version import StrictVersion
 
 import django
 from django.conf import settings
-from django.utils import unittest
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.client import Client
@@ -38,34 +38,6 @@ SAMPLE_HEADERS = {
   "Shibboleth-unscoped-affiliation": "member;staff"
 }
 
-settings.SHIBBOLETH_ATTRIBUTE_MAP = {
-   "Shib-Identity-Provider": (True, "idp"),
-   "Shibboleth-mail": (True, "email"),
-   "Shibboleth-eppn": (True, "username"),
-   "Shibboleth-schoolStatus": (True, "status"),
-   "Shibboleth-affiliation": (True, "affiliation"),
-   "Shib-Session-ID": (True, "session_id"),
-   "Shibboleth-givenName": (True, "first_name"),
-   "Shibboleth-sn": (True, "last_name"),
-   "Shibboleth-mail": (True, "email"),
-   "Shibboleth-schoolBarCode": (False, "barcode")
-}
-
-
-settings.AUTHENTICATION_BACKENDS += (
-    'shibboleth.backends.ShibbolethRemoteUserBackend',
-)
-
-settings.MIDDLEWARE_CLASSES += (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'shibboleth.middleware.ShibbolethRemoteUserMiddleware',
-)
-
-settings.ROOT_URLCONF = 'shibboleth.urls'
-
-settings.SHIBBOLETH_LOGOUT_URL = 'https://sso.school.edu/logout?next=%s'
-settings.SHIBBOLETH_LOGOUT_REDIRECT_URL = 'http://school.edu/'
 
 from shibboleth.views import ShibbolethView
 
