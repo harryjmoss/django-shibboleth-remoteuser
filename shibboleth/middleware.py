@@ -1,15 +1,19 @@
-from django.contrib.auth.middleware import RemoteUserMiddleware
 from django.contrib import auth
+from django.contrib.auth.middleware import RemoteUserMiddleware
 from django.core.exceptions import ImproperlyConfigured
 
-from shibboleth.app_settings import SHIB_ATTRIBUTE_MAP, LOGOUT_SESSION_KEY, SHIB_REMOTE_USER_HEADER
+from shibboleth.app_settings import (
+    SHIB_ATTRIBUTE_MAP, LOGOUT_SESSION_KEY, SHIB_REMOTE_USER_HEADER
+)
+
 
 class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
     header = SHIB_REMOTE_USER_HEADER
 
     """
-    Authentication Middleware for use with Shibboleth.  Uses the recommended pattern
-    for remote authentication from: http://code.djangoproject.com/svn/django/tags/releases/1.3/django/contrib/auth/middleware.py
+    Authentication Middleware for use with Shibboleth.
+    Uses the recommended pattern for remote authentication from:
+    http://code.djangoproject.com/svn/django/tags/releases/1.3/django/contrib/auth/middleware.py
     """
     def process_request(self, request):
         # AuthenticationMiddleware is required so that request.user exists.
@@ -21,15 +25,15 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
                 " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
                 " before the RemoteUserMiddleware class.")
 
-        #To support logout.  If this variable is True, do not
-        #authenticate user and return now.
-        if request.session.get(LOGOUT_SESSION_KEY) == True:
+        # To support logout.  If this variable is True, do not
+        # authenticate user and return now.
+        if request.session.get(LOGOUT_SESSION_KEY) is True:
             return
         else:
-            #Delete the shib reauth session key if present.
+            # Delete the shib reauth session key if present.
             request.session.pop(LOGOUT_SESSION_KEY, None)
 
-        #Locate the remote user header.
+        # Locate the remote user header.
         try:
             username = request.META[self.header]
         except KeyError:
@@ -43,7 +47,8 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
         # getting passed in the headers, then the correct user is already
         # persisted in the session and we don't need to continue.
         if request.user.is_authenticated():
-            if request.user.get_username() == self.clean_username(username, request):
+            if ((request.user.get_username() ==
+                 self.clean_username(username, request))):
                 return
 
         # Make sure we have all required Shiboleth elements before proceeding.
@@ -64,14 +69,15 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
             auth.login(request, user)
             # call make profile.
             self.make_profile(user, shib_meta)
-            #setup session.
+            # setup session.
             self.setup_session(request)
 
     def make_profile(self, user, shib_meta):
         """
-        This is here as a stub to allow subclassing of ShibbolethRemoteUserMiddleware
-        to include a make_profile method that will create a Django user profile
-        from the Shib provided attributes.  By default it does nothing.
+        This is here as a stub to allow subclassing of
+        ShibbolethRemoteUserMiddleware to include a make_profile method that
+        will create a Django user profile from the Shib provided attributes
+        By default it does nothing.
         """
         return
 
@@ -99,6 +105,7 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
                 if required:
                     error = True
         return shib_attrs, error
+
 
 class ShibbolethValidationError(Exception):
     pass

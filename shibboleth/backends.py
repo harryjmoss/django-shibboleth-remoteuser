@@ -1,4 +1,3 @@
-from django.db import connection
 try:
     from django.contrib.auth import get_user_model
 except ImportError:
@@ -7,12 +6,12 @@ except ImportError:
     def get_user_model():
         return User
 
-from django.contrib.auth.models import User, Permission
 from django.contrib.auth.backends import RemoteUserBackend
+
 
 class ShibbolethRemoteUserBackend(RemoteUserBackend):
     """
-    This backend is to be used in conjunction with the ``RemoteUserMiddleware``
+    This backend is to be used in conjunction with the ``RemoteUserMiddleware`
     found in the middleware module of this package, and is used when the server
     is handling authentication outside of Django.
 
