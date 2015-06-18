@@ -37,6 +37,8 @@ class ShibbolethRemoteUserBackend(RemoteUserBackend):
             return
         user = None
         username = self.clean_username(remote_user)
+        if not username:
+            return
 
         UserModel = get_user_model()
 
