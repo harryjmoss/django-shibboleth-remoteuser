@@ -50,8 +50,12 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
             if ((request.user.get_username() ==
                  self.clean_username(username, request))):
                 return
+            else:
+                # An authenticated user is associated with the request, but
+                # it does not match the authorized user in the header.
+                self._remove_invalid_user(request)
 
-        # Make sure we have all required Shiboleth elements before proceeding.
+        # Make sure we have all required Shibboleth elements before proceeding.
         shib_meta, error = self.parse_attributes(request)
         # Add parsed attributes to the session.
         request.session['shib'] = shib_meta
