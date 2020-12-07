@@ -8,8 +8,6 @@ from shibboleth.app_settings import (
 
 
 class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
-    header = SHIB_REMOTE_USER_HEADER
-
     """
     Authentication Middleware for use with Shibboleth.
     Uses the recommended pattern for remote authentication from:
@@ -21,7 +19,7 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
             raise ImproperlyConfigured(
                 "The Django remote user auth middleware requires the"
                 " authentication middleware to be installed.  Edit your"
-                " MIDDLEWARE_CLASSES setting to insert"
+                " MIDDLEWARE setting to insert"
                 " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
                 " before the RemoteUserMiddleware class.")
 
@@ -40,13 +38,19 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
             # If specified header doesn't exist then return (leaving
             # request.user set to AnonymousUser by the
             # AuthenticationMiddleware).
-            if request.user.is_authenticated():
-                self._remove_invalid_user(request)
+            #if request.user.is_authenticated:
+            #    self._remove_invalid_user(request)
+            #return
             return
+        #If we got an empty value for request.META[self.header], treat it like
+        #   self.header wasn't in self.META at all - it's still an anonymous user.
+        if not username:
+            return
+
         # If the user is already authenticated and that user is the user we are
         # getting passed in the headers, then the correct user is already
         # persisted in the session and we don't need to continue.
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             if ((request.user.get_username() ==
                  self.clean_username(username, request))):
                 return
@@ -57,6 +61,7 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
 
         # Make sure we have all required Shibboleth elements before proceeding.
         shib_meta, error = self.parse_attributes(request)
+
         # Add parsed attributes to the session.
         request.session['shib'] = shib_meta
         if error:
@@ -65,7 +70,7 @@ class ShibbolethRemoteUserMiddleware(RemoteUserMiddleware):
 
         # We are seeing this user for the first time in this session, attempt
         # to authenticate the user.
-        user = auth.authenticate(remote_user=username, shib_meta=shib_meta)
+        user = auth.authenticate(request, remote_user=username, shib_meta=shib_meta)
         if user:
             # User is valid.  Set request.user and persist user in the session
             # by logging the user in.
